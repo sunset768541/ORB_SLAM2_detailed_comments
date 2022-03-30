@@ -128,7 +128,7 @@ bool Initializer::Initialize(const Frame &CurrentFrame, const vector<int> &vMatc
     vector<size_t> vAllIndices;
     vAllIndices.reserve(N);
 
-	//在RANSAC的某次迭代中，还可以被抽取来作为数据样本的特征点对的索引，所以这里起的名字叫做可用的索引
+	//在RANSAC（随机抽样一致性算法）的某次迭代中，还可以被抽取来作为数据样本的特征点对的索引，所以这里起的名字叫做可用的索引
     vector<size_t> vAvailableIndices;
 	//初始化所有特征点对的索引，索引值0到N-1
     for(int i=0; i<N; i++)
@@ -176,7 +176,8 @@ bool Initializer::Initialize(const Frame &CurrentFrame, const vector<int> &vMatc
 
     // Launch threads to compute in parallel a fundamental matrix and a homography
     // Step 3 计算fundamental 矩阵 和homography 矩阵，为了加速分别开了线程计算 
- 
+    //RANSAC算法的基本假设是样本中包含正确数据(inliers，可以被模型描述的数据)，也包含异常数据(outliers，偏离正常范围很远、无法适应数学模型的数据)
+    //即数据集中含有噪声。这些异常数据可能是由于错误的测量、错误的假设、错误的计算等产生的。同时RANSAC也假设，给定一组正确的数据，存在可以计算出符合这些数据的模型参数的方法
     //这两个变量用于标记在H和F的计算中哪些特征点对被认为是Inlier
     vector<bool> vbMatchesInliersH, vbMatchesInliersF;
 	//计算出来的单应矩阵和基础矩阵的RANSAC评分，这里其实是采用重投影误差来计算的

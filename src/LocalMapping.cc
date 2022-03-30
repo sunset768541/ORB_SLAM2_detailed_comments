@@ -348,7 +348,7 @@ void LocalMapping::CreateNewMapPoints()
         // 相邻的关键帧光心在世界坐标系中的坐标
         cv::Mat Ow2 = pKF2->GetCameraCenter();
         // 基线向量，两个关键帧间的相机位移
-        cv::Mat vBaseline = Ow2-Ow1;
+        cv::Mat vBaseline = Ow2-Ow1;//两个相机光心连线O1 O2被称为基线
         // 基线长度
         const float baseline = cv::norm(vBaseline);
 
@@ -364,7 +364,7 @@ void LocalMapping::CreateNewMapPoints()
         {
             // 单目相机情况
             // 相邻关键帧的场景深度中值
-            const float medianDepthKF2 = pKF2->ComputeSceneMedianDepth(2);
+            const float medianDepthKF2 = pKF2->ComputeSceneMedianDepth(2);//之前的关键帧已经计算了地图点
             // 基线与景深的比例
             const float ratioBaselineDepth = baseline/medianDepthKF2;
             // 如果比例特别小，基线太短恢复3D点不准，那么跳过当前邻接的关键帧，不生成3D点

@@ -395,10 +395,10 @@ cv::Mat Tracking::GrabImageMonocular(const cv::Mat &im,const double &timestamp)
             timestamp,
             mpIniORBextractor,      //初始化ORB特征点提取器会提取2倍的指定特征点数目
             mpORBVocabulary,
-            mK,
-            mDistCoef,
-            mbf,
-            mThDepth);
+            mK,//内参矩阵
+            mDistCoef,//去畸变参数
+            mbf,//基线长度
+            mThDepth);//内外点区分深度阈值
     else
         mCurrentFrame = Frame(
             mImGray,
@@ -490,6 +490,7 @@ void Tracking::Track()
                 // 第一个条件,如果运动模型为空,说明是刚初始化开始，或者已经跟丢了
                 // 第二个条件,如果当前帧紧紧地跟着在重定位的帧的后面，我们将重定位帧来恢复位姿
                 // mnLastRelocFrameId 上一次重定位的那一帧
+                // cv::Mat mVelocity
                 if(mVelocity.empty() || mCurrentFrame.mnId<mnLastRelocFrameId+2)
                 {
                     // 用最近的关键帧来跟踪当前的普通帧
@@ -626,7 +627,7 @@ void Tracking::Track()
         if(!mbOnlyTracking)
         {
             if(bOK)
-                bOK = TrackLocalMap();
+                bOK = TrackLocalMap();//开始 跟踪局部地图
         }
         else
         {
@@ -913,7 +914,7 @@ void Tracking::MonocularInitialization()
             mpInitializer = static_cast<Initializer*>(NULL);
             fill(mvIniMatches.begin(),mvIniMatches.end(),-1);
             return;
-        }
+     }
 
         // Find correspondences
         // Step 3 在mInitialFrame与mCurrentFrame中找匹配的特征点对
@@ -1151,7 +1152,7 @@ void Tracking::CheckReplacedInLastFrame()
  * Step 1：将当前普通帧的描述子转化为BoW向量
  * Step 2：通过词袋BoW加速当前帧与参考帧之间的特征点匹配
  * Step 3: 将上一帧的位姿态作为当前帧位姿的初始值
- * Step 4: 通过优化3D-2D的重投影误差来获得位姿
+ * Step 4: 通过优化3D-2D的重投影误差来获得位姿   （视觉SLAM14讲 ，在前端，我们通常考虑局部相机位姿和特征点的小型BA问题，希望对它进行实时求解和优化）
  * Step 5：剔除优化后的匹配点中的外点
  * @return 如果匹配数超10，返回true
  * 
@@ -1402,7 +1403,7 @@ bool Tracking::TrackWithMotionModel()
 }
 
 /**
- * @brief 用局部地图进行跟踪，进一步优化位姿
+ * @brief 用局部地图进行跟踪，进一步优化位姿   什么是局部地图？
  * 
  * 1. 更新局部地图，包括局部关键帧和关键点
  * 2. 对局部MapPoints进行投影匹配
@@ -1818,7 +1819,7 @@ void Tracking::UpdateLocalMap()
     mpMap->SetReferenceMapPoints(mvpLocalMapPoints);
 
     // Update
-    // 用共视图来更新局部关键帧和局部地图点
+    // 用共视图来更新局部关键帧和局部地图点  局部地图包括了局部关键帧和局部地图点
     UpdateLocalKeyFrames();
     UpdateLocalPoints();
 }

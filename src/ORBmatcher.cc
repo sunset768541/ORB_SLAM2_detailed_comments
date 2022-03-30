@@ -81,10 +81,11 @@ int ORBmatcher::SearchByProjection(Frame &F, const vector<MapPoint*> &vpMapPoint
     {
         MapPoint* pMP = vpMapPoints[iMP];
 
-        // 判断该点是否要投影
+        // 判断该点是否要投影，在SearchLocalPoints()中已经将Local MapPoints
+        //重投影（isInFrustum()）到当前帧，并标记了这些点是否在当前帧的视野中即mbTrackInView
         if(!pMP->mbTrackInView)
             continue;
-
+        //如果质量不好不用
         if(pMP->isBad())
             continue;
             
@@ -174,7 +175,7 @@ int ORBmatcher::SearchByProjection(Frame &F, const vector<MapPoint*> &vpMapPoint
                 continue;
 
             //保存结果: 为Frame中的特征点增加对应的MapPoint
-            F.mvpMapPoints[bestIdx]=pMP; 
+            F.mvpMapPoints[bestIdx]=pMP; //pmp局部地图点，来自局部关键帧,保存帧特征点对应的一个地图点
             nmatches++;
         }
     }
@@ -929,7 +930,7 @@ int ORBmatcher::SearchForTriangulation(KeyFrame *pKF1, KeyFrame *pKF2, cv::Mat F
     // Step 2.1：遍历pKF1和pKF2中的node节点
     while(f1it!=f1end && f2it!=f2end)
     {
-        // 如果f1it和f2it属于同一个node节点才会进行匹配，这就是BoW加速匹配原理
+        // 如果f1it和f2it属于同一个node节点才会进行匹配，这就是BoW加速匹配原理  node指的是词袋模型中的Node
         if(f1it->first == f2it->first)
         {
             // Step 2.2：遍历属于同一node节点(id：f1it->first)下的所有特征点
