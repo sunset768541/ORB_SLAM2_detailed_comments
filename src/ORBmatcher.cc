@@ -342,7 +342,7 @@ int ORBmatcher::SearchByBoW(KeyFrame* pKF,Frame &F, vector<MapPoint*> &vpMapPoin
                     if(static_cast<float>(bestDist1)<mfNNratio*static_cast<float>(bestDist2))
                     {
                         // Step 4.3：记录成功匹配特征点的对应的地图点(来自关键帧)
-                        vpMapPointMatches[bestIdxF]=pMP;
+                        vpMapPointMatches[bestIdxF]=pMP;//(记录来自关键帧的地图点，原理是将关键帧的已知关键点和当前帧的关键点进行Bow匹配，匹配成功，说明当前帧这个特征点地图点和关键帧一样)
 
                         // 这里的realIdxKF是当前遍历到的关键帧的特征点id
                         const cv::KeyPoint &kp = pKF->mvKeysUn[realIdxKF];

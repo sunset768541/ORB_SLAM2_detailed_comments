@@ -949,7 +949,7 @@ void Tracking::MonocularInitialization()
             mCurrentFrame,      //当前帧
             mvIniMatches,       //当前帧和参考帧的特征点的匹配关系
             Rcw, tcw,           //初始化得到的相机的位姿
-            mvIniP3D,           //进行三角化得到的空间点集合
+            mvIniP3D,           //进行三角化得到的空间点集合 注意不是地图点
             vbTriangulated))    //以及对应于mvIniMatches来讲,其中哪些点被三角化了
         {
             // Step 6 初始化成功后，删除那些无法进行三角化的匹配点
@@ -1168,7 +1168,7 @@ bool Tracking::TrackReferenceKeyFrame()
     ORBmatcher matcher(0.7,true);
     vector<MapPoint*> vpMapPointMatches;
 
-    // Step 2：通过词袋BoW加速当前帧与参考帧之间的特征点匹配
+    // Step 2：通过词袋BoW加速当前帧与参考帧之间的特征点匹配  ，可以从关键帧中获得一些地图点
     int nmatches = matcher.SearchByBoW(
         mpReferenceKF,          //参考关键帧
         mCurrentFrame,          //当前帧
@@ -1801,7 +1801,7 @@ void Tracking::SearchLocalPoints()
             th=5;
 
         // 投影匹配得到更多的匹配关系
-        matcher.SearchByProjection(mCurrentFrame,mvpLocalMapPoints,th);
+        matcher.SearchByProjection(mCurrentFrame,mvpLocalMapPoints,th);//增加当前帧的地图点
     }
 }
 
